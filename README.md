@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# E-commerce PUBG
 
-## Getting Started
+## Cấu trúc thư mục
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Phần dành cho Quản trị viên (Admin)
+```
+admin/
+├── components/
+│   ├── categories/
+│   │   ├── CategoryList.tsx
+│   │   ├── CategoryForm.tsx
+│   │   ├── CategoryItem.tsx
+│   │   └── CategoryDelete.tsx
+│   └── shared/
+│       ├── Layout.tsx
+│       ├── Header.tsx
+│       └── Sidebar.tsx
+├── services/
+│   └── api/
+│       └── categories.ts
+├── hooks/
+│   └── useCategories.ts
+└── pages/
+    └── categories/
+        ├── index.tsx
+        ├── create.tsx
+        └── [id]/
+            └── edit.tsx
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Phần dành cho Người dùng (User)
+```
+src/
+├── components/
+│   ├── products/
+│   │   ├── ProductList.tsx
+│   │   └── ProductItem.tsx
+│   └── shared/
+│       ├── Layout.tsx
+│       ├── Header.tsx
+│       └── Footer.tsx
+├── services/
+│   └── api/
+│       └── products.ts
+└── pages/
+    ├── index.tsx
+    └── products/
+        └── [category]/
+            └── index.tsx
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Thư mục chung
+- **next.config.ts**: File cấu hình cho Next.js
+- **package.json**: File quản lý dependencies và scripts
+- **tsconfig.json**: File cấu hình TypeScript
+- **public/**: Thư mục chứa tài nguyên tĩnh
+  - **file.svg**: Tệp SVG
+  - **globe.svg**: Tệp SVG
+  - **next.svg**: Tệp SVG
+  - **vercel.svg**: Tệp SVG
+  - **window.svg**: Tệp SVG
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### API Endpoints cho Categories
+```
+GET    /api/categories      - Lấy danh sách categories
+POST   /api/categories      - Tạo category mới
+GET    /api/categories/:id  - Lấy chi tiết category
+PUT    /api/categories/:id  - Cập nhật category
+DELETE /api/categories/:id  - Xóa category
+```
 
-## Learn More
+## Chạy dự án với Docker
 
-To learn more about Next.js, take a look at the following resources:
+### Yêu cầu
+- Docker
+- Docker Compose
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Các bước chạy dự án
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Build và chạy container
+```bash
+docker-compose up --build
+```
 
-## Deploy on Vercel
+2. Chỉ chạy container (sau khi đã build)
+```bash
+docker-compose up
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. Dừng container
+```bash
+docker-compose down
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Truy cập ứng dụng
+
+- Frontend: http://localhost:3000
+- Admin Dashboard: http://localhost:3000/admin/categories
+
+### Lưu ý
+
+- Đảm bảo port 3000 không bị sử dụng bởi ứng dụng khác
+- Kiểm tra logs container nếu có lỗi: `docker-compose logs -f`
