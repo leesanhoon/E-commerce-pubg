@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import useSWR, { mutate } from 'swr';
 import {
   Table,
   TableBody,
@@ -20,27 +21,36 @@ import {
   Alert,
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { Category, categoryApi } from '../../services/api/categories';
+import { 
+  Category, 
+  CATEGORY_KEYS,
+  getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory
+} from '../../services/api/categories';
+import { fetcher } from '@/app/config/api';
 
 export default function CategoryList() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { data: categories = [], error } = useSWR<Category[]>(
+    CATEGORY_KEYS.all,
+    fetcher
+  );
+
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  const showSnackbar = (message: string, severity: 'success' | 'error') => {
+    setSnackbar({ open: true, message, severity });
+  };
 
-  const fetchCategories = async () => {
-    try {
-      const data = await categoryApi.getAll();
-      setCategories(data);
-    } catch (error) {
+  useEffect(() => {
+    if (error) {
       showSnackbar('Lỗi khi tải danh sách danh mục', 'error');
     }
-  };
+  }, [error]);
 
   const handleOpenDialog = (category?: Category) => {
     if (category) {
@@ -62,33 +72,29 @@ export default function CategoryList() {
   const handleSubmit = async () => {
     try {
       if (selectedCategory) {
-        await categoryApi.update(selectedCategory.id, formData);
+        await updateCategory(selectedCategory.id, formData);
         showSnackbar('Cập nhật danh mục thành công', 'success');
       } else {
-        await categoryApi.create(formData);
+        await createCategory(formData);
         showSnackbar('Tạo danh mục mới thành công', 'success');
       }
       handleCloseDialog();
-      fetchCategories();
+      mutate(CATEGORY_KEYS.all);
     } catch (error) {
       showSnackbar('Có lỗi xảy ra', 'error');
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa danh mục này?')) {
       try {
-        await categoryApi.delete(id);
+        await deleteCategory(id);
         showSnackbar('Xóa danh mục thành công', 'success');
-        fetchCategories();
+        mutate(CATEGORY_KEYS.all);
       } catch (error) {
         showSnackbar('Có lỗi xảy ra khi xóa danh mục', 'error');
       }
     }
-  };
-
-  const showSnackbar = (message: string, severity: 'success' | 'error') => {
-    setSnackbar({ open: true, message, severity });
   };
 
   return (
